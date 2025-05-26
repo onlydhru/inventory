@@ -59,7 +59,9 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage" 
 
 ROOT_URLCONF = 'inventoryclinic.urls'
 
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://vetpulse-9bad929d8f15.herokuapp.com"
+]
 
 TEMPLATES = [
     {

@@ -1,0 +1,185 @@
+{% extends 'adminbar.html' %}
+
+{% block content %}
+<div class="text-[#04445F] font-semibold text-lg flex items-center">
+    <div class="w-px h-7 p-[2px] bg-[#04445F] mr-1"></div>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="mr-1 h-7 w-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
+    </svg>
+    Purchase Order List
+</div>
+
+<hr class="mb-10 border-[#04445F]">
+
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-gray-600" aria-label="Breadcrumb">
+    <ol class="list-reset flex flex-wrap items-center">
+      <li>
+        <a href="{% url 'create_order' %}" class="text-[#04445F] hover:underline">Create Order</a>
+      </li>
+      <li><span class="mx-2">/</span></li>
+      <li>
+        <a href="{% url 'purchase_order_list' %}" class="text-[#04445F] hover:underline">View Orders</a>
+      </li>
+      <li><span class="mx-2">/</span></li>
+      <li>
+        <a href="{% url 'expiring_products' %}" class="text-[#04445F] hover:underline">Expiring Products</a>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Search Form -->
+  <form method="get" action="{% url 'purchase_order_list' %}" class="flex items-center justify-end w-full md:w-auto">
+    <input 
+        type="text" 
+        name="search" 
+        value="{{ request.GET.search }}" 
+        placeholder="Search by product name or batch number" 
+        class="border px-4 py-2 rounded-lg shadow-sm w-full md:w-64"
+    >
+    <button 
+        type="submit" 
+        class="ml-2 px-4 py-2 bg-[#04445F] hover:bg-[#0369a1] text-white rounded-lg"
+    >
+        Search
+    </button>
+  </form>
+</div>
+
+<!-- Only show total quantity when searching -->
+{% if request.GET.search %}
+<div class="mb-4">
+  <div class="text-sm text-gray-700 font-semibold">
+    Total Quantity Received for "{{ request.GET.search }}": 
+    <span class="text-[#04445F] text-lg font-bold">{{ total_quantity_received }}</span>
+  </div>
+  <div class="text-xs text-gray-500 mt-1">
+    Showing {{ page_obj.paginator.count }} matching records
+  </div>
+</div>
+{% endif %}
+
+<div class="overflow-x-auto">
+  <table class="min-w-full bg-white text-sm">
+      <thead>
+          <tr class="bg-[#e4e4e7] text-[#52525b] text-left">
+              <th class="px-4 py-2">Product</th>
+              <th class="px-4 py-2">Supplier</th>
+              <th class="px-4 py-2">Qty Ordered</th>
+              <th class="px-4 py-2">Qty Received</th>
+              <th class="px-4 py-2">Delivery Date</th> <!-- NEW -->
+              <th class="px-4 py-2">Expiry Date</th>   <!-- NEW -->
+              <th class="px-4 py-2">Status</th>
+              <th class="px-4 py-2">Created By</th>
+              <th class="px-4 py-2">Created At</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for order in page_obj %}
+          <tr>
+              <td colspan="9" class="pt-6 pb-2 px-4">
+                  <span class="text-[#04445F] font-semibold text-sm uppercase">Batch #: {{ order.batch_number }}</span>
+              </td>
+          </tr>
+          <tr>
+              <td class="px-4 py-2">{{ order.product.product_name }}</td>
+              <td class="px-4 py-2">{{ order.supplier.supplier_name }}</td>
+              <td class="px-4 py-2">{{ order.quantity_ordered }}</td>
+              <td class="px-4 py-2">{{ order.quantity_received }}</td>
+              <td class="px-4 py-2">{{ order.delivery_date|date:"M d, Y" }}</td> <!-- NEW -->
+              <td class="px-4 py-2">{{ order.expiry_date|date:"M d, Y" }}</td>   <!-- NEW -->
+              <td class="px-4 py-2 space-x-2 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                      {% if order.status == 'complete' %}
+                          bg-green-100 text-green-800
+                      {% elif order.status == 'pending' %}
+                          bg-yellow-100 text-yellow-800
+                      {% else %}
+                          bg-red-100 text-red-800
+                      {% endif %}
+                  ">
+                      {{ order.status|capfirst }}
+                  </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.created_by.username }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.created_at|date:"M d, Y H:i" }}</td>
+          </tr>
+          <!-- Delivery History Section -->
+          <tr>
+              <td colspan="9">
+                  <div class="flex justify-end pr-6 pb-4 space-x-2">
+                      <a href="{% url 'purchase_order_update' order.id %}" 
+                         class="bg-[#04445F] hover:bg-[#0369a1] text-sm text-white font-semibold px-2 py-2 flex items-center">
+                          Update
+                      </a>
+                      <button
+                          class="bg-[#04445F] hover:bg-[#0369a1] text-sm text-white font-semibold px-2 py-2 flex items-center"
+                          onclick="openModal('{{ order.id }}')"
+                      >
+                          View Delivery History
+                      </button>
+
+                      <!-- Delivery History Modal -->
+                      <div id="modal-{{ order.id }}" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                          <div class="modal-content bg-white p-6 rounded-lg w-1/3">
+                              <h2 class="text-lg font-semibold mb-4">Delivery Detail for {{ order.product.product_name }}</h2>
+                              <ul class="space-y-2">
+                                  <li class="mb-2">
+                                      <strong class="font-medium">Date Update:</strong> {{ order.updated_at|date:"M d, Y H:i" }}<br>
+                                      <strong class="font-medium">Quantity Received:</strong> {{ order.quantity_received }}<br>
+                                      <strong class="font-medium">Delivery Date:</strong> {{ order.delivery_date|date:"M d, Y" }}<br>
+                                      <strong class="font-medium">Expiry Date:</strong> {{ order.expiry_date|date:"M d, Y" }}
+                                  </li>
+                              </ul>
+                              <button class="bg-red-500 text-white px-4 py-2 mt-4 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300" onclick="closeModal('{{ order.id }}')">Close</button>
+                          </div>
+                      </div>
+                  </div>
+              </td>
+          </tr>
+          {% empty %}
+          <tr>
+              <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">No purchase orders found.</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="mt-6 flex justify-center items-center space-x-1 text-sm">
+    {% if page_obj.has_previous %}
+        <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">&laquo;</a>
+    {% endif %}
+
+    {% for num in paginator.page_range %}
+        {% if num == 1 or num == paginator.num_pages or num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
+            {% if num == page_obj.number %}
+                <span class="px-3 py-1 rounded bg-[#04445F] text-white font-semibold">{{ num }}</span>
+            {% else %}
+                <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">{{ num }}</a>
+            {% endif %}
+        {% elif num == page_obj.number|add:'-2' or num == page_obj.number|add:'2' %}
+            <span class="px-2">…</span>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">&raquo;</a>
+        <a href="?page={{ paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">Last</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+    function openModal(orderId) {
+        document.getElementById('modal-' + orderId).classList.remove('hidden');
+    }
+    function closeModal(orderId) {
+        document.getElementById('modal-' + orderId).classList.add('hidden');
+    }
+</script>
+{% endblock %}

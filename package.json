@@ -1,0 +1,19 @@
+{
+  "name": "inventoryclinic",
+  "version": "1.0.0",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tailwinds": "^0.0.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.8",
+    "flowbite": "^2.5.2"
+  }
+}

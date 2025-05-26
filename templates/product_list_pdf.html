@@ -1,0 +1,56 @@
+{% load compress static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 6px;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+        h2 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>Product List</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Product Name</th>
+                <th>Suppliers</th>
+                <th>Available Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ product.product_name }}</td>
+                <td>
+                    {% for supplier in product.suppliers.all %}
+                        {{ supplier.supplier_name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        No Supplier
+                    {% endfor %}
+                </td>
+                <td>{{ product.total_stock|default:0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+

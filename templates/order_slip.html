@@ -1,0 +1,63 @@
+{% extends 'adminbar.html' %}
+
+{% block content %}
+
+<div class="text-[#04445F] font-semibold text-lg flex items-center">
+  <div class="w-px h-7 p-[2px] bg-[#04445F] mr-1"></div>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="mr-1 h-7 w-5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
+  </svg>
+  Order Slip
+</div>
+
+<hr class="mb-10 border-[#04445F]">
+
+<div class="flex justify-start mb-5">
+  <a href="{% url 'order-slip-pdf' order.pk %}" target="_blank"
+     class="text-white px-4 py-2 rounded-lg bg-[#04445F] hover:bg-[#0369a1] transition duration-200">
+    Download PDF
+  </a>
+</div>
+
+<div class="bg-white border rounded-lg shadow-md p-6 text-sm mt-5">
+  
+  {% with first_item=order.orderitem_set.first %}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div>
+      <p class="mb-1"><span class="font-semibold">Order ID:</span> {{ order.order_id }}</p>
+      <p><span class="font-semibold">Order Date:</span> {{ first_item.order_date|date:"F d, Y H:i" }}</p>
+    </div>
+    <div class="text-right">
+      <p><span class="font-semibold">Created By:</span> {{ first_item.created_by.username|default:"N/A" }}</p>
+    </div>
+  </div>
+  {% endwith %}
+
+  <table class="w-full text-sm border border-gray-200">
+    <thead class="bg-gray-100 text-gray-700">
+      <tr>
+        <th class="text-left px-4 py-2 border-b border-gray-200">Product</th>
+        <th class="text-left px-4 py-2 border-b border-gray-200">Quantity</th>
+        <th class="text-left px-4 py-2 border-b border-gray-200">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody class="text-gray-800">
+      {% for item in order_items %}
+      <tr class="border-b border-gray-100 hover:bg-gray-50">
+        <td class="px-4 py-2">{{ item.product.product_name }}</td>
+        <td class="px-4 py-2">{{ item.quantity }}</td>
+        <td class="px-4 py-2">₱{{ item.subtotal }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="mt-6 text-right">
+    <p class="text-xl font-bold text-[#04445F]">Total: ₱{{ total_subtotal }}</p>
+  </div>
+</div>
+
+{% endblock %}
+
+
+

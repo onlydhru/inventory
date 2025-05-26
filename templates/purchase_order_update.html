@@ -1,0 +1,81 @@
+{% extends 'adminbar.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class=" text-[#04445F] text-lg flex">
+  <div class="w-px h-7 p-[2px] bg-[#04445F] "></div> <!-- Vertical line here -->
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 20" stroke-width="3" stroke="currentColor" class="h-7 w-5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+  </svg>
+  Update Order
+</div>
+<hr class=" border-gray-300">
+
+<div class="max-w-2xl mx-auto mt-10 ">
+  
+    <form method="post" class="bg-gradient-to-b from-gray-100 to-gray-200 p-6 rounded border shadow">
+      {% csrf_token %}
+      
+      <div class="mb-4">
+        <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Product Name</label>
+        <input type="text" value="{{ order.product.product_name }}" readonly class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+      </div>
+  
+      <div class="mb-4">
+        <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Supplier</label>
+        <input type="text" value="{{ order.supplier.supplier_name }}" readonly class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+      </div>
+  
+      <div class="mb-4">
+        <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Quantity Ordered</label>
+        <input type="number" value="{{ order.quantity_ordered }}" readonly class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+      </div>
+  
+      <div class="mb-4">
+        <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Quantity Received</label>
+        <input type="number" value="{{ order.quantity_received }}" readonly class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+      </div>
+  
+      <div class="mb-4">
+        <label for="quantity_delivered" class="block text-xs font-bold uppercase text-gray-700 mb-1">Quantity Delivered</label>
+        <input type="number" placeholder="Enter quantity delivered" name="quantity_delivered" class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" required>
+      </div>
+
+      <div class="mb-4">
+        <label for="delivery_date" class="block text-xs font-bold uppercase text-gray-700 mb-1">Delivery Date</label>
+        <input type="date" name="delivery_date" value="{{ order.delivery_date|date:'Y-m-d' }}" class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+      </div>
+      
+      <div class="mb-4">
+        <label for="expiry_date" class="block text-xs font-bold uppercase text-gray-700 mb-1">Expiry Date</label>
+        <input type="date" name="expiry_date" value="{{ order.expiry_date|date:'Y-m-d' }}" class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+      </div>
+
+  
+      <div class="mb-4">
+        <label for="status" class="block text-xs font-bold uppercase text-gray-700 mb-1">Status</label>
+        <select name="status" class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="complete" {% if order.status == 'complete' %}selected{% endif %}>Complete</option>
+          <option value="incomplete" {% if order.status == 'incomplete' %}selected{% endif %}>Incomplete</option>
+        </select>
+      </div>
+  
+      <div class="flex justify-end mt-6">
+        <button type="submit" class="bg-[#04445F] hover:bg-[#0369a1] text-sm text-white font-semibold px-2 py-2 flex items-center justify-end">
+          <!-- Your SVG Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 20" stroke-width="5" stroke="currentColor" class="h-5 w-3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Update Order
+        </button>
+      </div>
+    </form>
+  
+    {% if error %}
+      <div class="text-red-600 mt-4">{{ error }}</div>
+    {% endif %}
+</div>
+
+{% endblock %}

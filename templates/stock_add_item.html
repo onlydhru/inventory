@@ -1,0 +1,75 @@
+{% extends "adminbar.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Header with icon and label -->
+<div class="text-[#04445F] text-lg font-semibold flex items-center ">
+  <div class="w-px h-7 p-[2px] bg-[#04445F]"></div>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 20" stroke-width="3"  stroke="currentColor" class=" h-7 w-5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+  </svg>
+  Add Item to Stock
+</div>
+<hr class="border-gray-300 mb-8">
+
+
+{% if messages %}
+  <div class="mb-6 max-w-screen-md mx-auto px-4 sm:px-6 lg:px-8">
+    {% for message in messages %}
+      <div class="mb-3 px-4 py-3 rounded-lg text-white shadow-md 
+                  transition-colors duration-300
+                  {% if message.tags == 'error' %}bg-red-600 hover:bg-red-700
+                  {% elif message.tags == 'success' %}bg-green-600 hover:bg-green-700
+                  {% else %}bg-blue-600 hover:bg-blue-700{% endif %}
+                  text-sm sm:text-base">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+
+<!-- Form container -->
+<div class="max-w-2xl mx-auto mt-4">
+  <form method="post" class="bg-gradient-to-b from-gray-100 to-gray-200 p-6 rounded border shadow">
+    {% csrf_token %}
+
+    <!-- Product selection -->
+    <div class="mb-4">
+      <label for="product" class="block text-xs font-bold uppercase text-gray-700 mb-1">Product</label>
+      <select name="product" id="product" required
+        class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+        <option value="">Select a product</option>
+        {% for product in products %}
+          <option value="{{ product.product_id }}">{{ product.product_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Price input -->
+    <div class="mb-6">
+      <label for="price" class="block text-xs font-bold uppercase text-gray-700 mb-1">Price</label>
+      <input type="number" placeholder="Enter product price" step="0.01" name="price" id="price" value="{{ request.POST.price }}" required
+        class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" />
+    </div>
+
+
+    <!-- Submit button -->
+    <div class="flex items-center justify-between">
+      <button type="submit"
+        class="bg-[#04445F] hover:bg-[#0369a1] text-sm text-white font-semibold px-3 py-2 flex items-center gap-1">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 20" stroke-width="5" stroke="currentColor" class="h-5 w-3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Add Item
+      </button>
+
+              <a href="{% url 'stock_list' %}" class="bg-[#04445F] hover:bg-[#0369a1] text-sm text-white font-semibold px-2 py-2 flex items-center justify-end">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

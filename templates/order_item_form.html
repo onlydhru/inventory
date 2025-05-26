@@ -1,0 +1,148 @@
+{% extends "adminbar.html" %}
+{% load static %}
+
+{% block content %}
+<div class="text-[#04445F] text-lg flex items-center mb-2">
+  <div class="w-px h-7 p-[2px] bg-[#04445F] mr-2"></div>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 20" stroke-width="3" stroke="currentColor" class="h-6 w-5 mr-2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+  </svg>
+  Create Order
+</div>
+<hr class="border-gray-300 mb-6">
+
+<nav class="text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
+  <ol class="list-reset flex">
+    <li>
+      <a href="{% url 'product_list' %}" class="text-[#04445F] hover:underline">Product List</a>
+    </li>
+    <li><span class="mx-2">/</span></li>
+    <li>
+      <a href="{% url 'stock_list' %}" class="text-[#04445F] hover:underline">Stock List</a>
+    </li>
+    <li><span class="mx-2">/</span></li>
+    <li>
+      <a href="{% url 'item_orders' %}" class="text-[#04445F] hover:underline">Order Item</a>
+    </li>
+    <li><span class="mx-2">/</span></li>
+    <li>
+      <a href="{% url 'order_item_history' %}" class="text-[#04445F] hover:underline">Order History</a>
+    </li>
+    <li><span class="mx-2">/</span></li>
+    <li>
+      <a href="{% url 'low_stock_alerts' %}" class="text-[#04445F] hover:underline">Low Stock Alert</a>
+    </li>   
+  </ol>
+</nav>
+
+<div class="max-w-2xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+
+{% if order_error %}
+  <div class="mb-6 max-w-screen-md mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-3 px-4 py-3 rounded-lg text-white shadow-md 
+                transition-colors duration-300 bg-red-600 hover:bg-red-700 text-sm sm:text-base">
+      {{ order_error }}
+    </div>
+  </div>
+{% endif %}
+
+{% if order_success %}
+  <div class="mb-6 max-w-screen-md mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-3 px-4 py-3 rounded-lg text-white shadow-md 
+                transition-colors duration-300 bg-green-600 hover:bg-green-700 text-sm sm:text-base">
+      {{ order_success }}
+    </div>
+  </div>
+{% endif %}
+
+
+
+  <form method="post" class="bg-gradient-to-b from-gray-100 to-gray-200 p-6 rounded border shadow">
+    {% csrf_token %}
+
+    <!-- Select Product -->
+    <div class="mb-4">
+      <label for="id_product" class="block text-xs font-bold uppercase text-gray-700 mb-1">Select Product</label>
+      <select name="product" id="id_product" class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" required>
+        {% for product in form.fields.product.queryset %}
+          <option value="{{ product.pk }}" {% if form.data.product == product.pk|stringformat:"s" %}selected{% endif %} data-price="{{ product.stock_set.last.price }}" data-stock="{{ product.stock_set.last.quantity }}">
+            {{ product.product_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Quantity -->
+    <div class="mb-4">
+      <label for="id_quantity" class="block text-xs font-bold uppercase text-gray-700 mb-1">Quantity</label>
+      <input type="number" name="quantity" id="id_quantity" placeholder="Enter order quantity"
+             value="{{ form.data.quantity|default_if_none:'' }}"
+             class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+             required min="1">
+    </div>
+
+    <!-- Available Stock (readonly) -->
+    <div class="mb-4">
+      <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Available Stock</label>
+      <input type="text" name="available_stock" id="id_available_stock" value="{{ available_stock|default_if_none:'0' }}" readonly
+             class="w-full px-4 py-2 rounded border border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed">
+    </div>
+
+    <!-- Subtotal (readonly) -->
+    <div class="mb-4">
+      <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Subtotal</label>
+      <input type="text" name="subtotal" id="id_subtotal" value="{{ subtotal|default_if_none:'0.00' }}" readonly
+             class="w-full px-4 py-2 rounded border border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed">
+    </div>
+
+    <!-- Submit Buttons -->
+    <div class="flex items-center justify-between pt-4">
+      <a href="{% url 'order_item_history' %}" class="bg-[#04445F] hover:bg-[#0369a1] text-sm text-white font-semibold px-4 py-2 rounded flex items-center">
+        Cancel
+      </a>
+
+      <button type="submit" class="bg-[#04445F] hover:bg-[#0369a1] text-sm text-white font-semibold px-4 py-2 rounded flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 20" stroke-width="5" stroke="currentColor" class="h-5 w-3 mr-1">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Submit Order
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<!-- JavaScript to Update Subtotal and Available Stock Dynamically -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const productSelect = document.getElementById('id_product');
+    const quantityInput = document.getElementById('id_quantity');
+    const subtotalInput = document.getElementById('id_subtotal');
+    const availableStockInput = document.getElementById('id_available_stock');
+
+    function updateFields() {
+      const selectedOption = productSelect.options[productSelect.selectedIndex];
+      const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+      const stock = parseInt(selectedOption.getAttribute('data-stock')) || 0;
+      const quantity = parseInt(quantityInput.value, 10) || 0;
+
+      // Update Subtotal
+      const subtotal = price * quantity;
+      subtotalInput.value = subtotal.toFixed(2);  // Update the subtotal field
+
+      // Update Available Stock
+      availableStockInput.value = stock;  // Update the available stock field
+    }
+
+    // Event listeners to trigger update when product or quantity changes
+    productSelect.addEventListener('change', updateFields);
+    quantityInput.addEventListener('input', updateFields);
+
+    // Initialize the fields when the page loads
+    updateFields();
+  });
+</script>
+
+{% endblock %}
+
+

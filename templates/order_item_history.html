@@ -1,0 +1,142 @@
+{% extends 'adminbar.html' %}
+{% block content %}
+
+<div class="text-[#04445F] font-semibold text-lg flex">
+  <div class="w-px h-7 p-[2px] bg-[#04445F] mr-1"></div>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="mr-1 h-7 w-5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
+  </svg>Order History
+</div>
+
+<hr class="mb-10 border-[#04445F]">
+
+<h2 class="text-2xl font-bold mb-4 flex justify-between items-center">
+  <div class="flex gap-2">
+    <button onclick="toggleModal()" class="bg-[#04445F] text-white text-sm px-4 py-2 flex items-center gap-1 rounded hover:bg-[#0369a1]">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m9 14.25 6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+      </svg>
+      Order Slip
+    </button>
+    <a href="{% url 'order_history_pdf' %}" target="_blank" class="bg-[#04445F] text-white text-sm px-4 py-2 flex items-center gap-1 rounded hover:bg-[#0369a1]">
+      Download Order History
+    </a>
+  </div>
+</h2>
+
+<nav class="text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
+  <ol class="list-reset flex flex-wrap">
+    <li>
+      <a href="{% url 'product_list' %}" class="text-[#04445F] hover:underline">Product List</a>
+    </li>
+    <li><span class="mx-2">/</span></li>
+    <li>
+      <a href="{% url 'stock_list' %}" class="text-[#04445F] hover:underline">Stock List</a>
+    </li>
+    <li><span class="mx-2">/</span></li>
+    <li>
+      <a href="{% url 'item_orders' %}" class="text-[#04445F] hover:underline">Order Item</a>
+    </li>
+    <li><span class="mx-2">/</span></li>
+    <li>
+      <a href="{% url 'order_item_history' %}" class="text-[#04445F] hover:underline">Order History</a>
+    </li>
+    <li><span class="mx-2">/</span></li>
+    <li>
+      <a href="{% url 'low_stock_alerts' %}" class="text-[#04445F] hover:underline">Low Stock Alert</a>
+    </li>   
+  </ol>
+</nav>
+
+<div class="overflow-x-auto">
+  <table class="min-w-full bg-white text-sm">
+    <thead>
+      <tr class="bg-[#e4e4e7] text-[#52525b] text-left">
+        <th class="px-4 py-2">NO</th>
+        <th class="px-4 py-2">PRODUCT NAME</th>
+        <th class="px-4 py-2">QUANTITY</th>
+        <th class="px-4 py-2">SUBTOTAL</th>
+        <th class="px-4 py-2">ORDER DATE</th>
+        <th class="px-4 py-2">CREATED BY</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order_items %}
+        <tr class="text-[#3f3f46] border-t">
+          <td class="px-4 py-2">{{ forloop.counter0|add:page_obj.start_index }}</td>
+          <td class="px-4 py-2">{{ item.product.product_name }}</td>
+          <td class="px-4 py-2">{{ item.quantity }}</td>
+          <td class="px-4 py-2">₱{{ item.subtotal }}</td>
+          <td class="px-4 py-2">{{ item.order_date|date:"Y-m-d H:i" }}</td>
+          <td class="px-4 py-2">{{ item.created_by.username|default:"N/A" }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-gray-500 py-4">No order items found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<div class="mt-6 flex justify-center items-center space-x-1 text-sm">
+    {% if page_obj.has_previous %}
+        <a href="?page=1" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">&laquo;</a>
+    {% endif %}
+
+    {% for num in custom_page_range %}
+        {% if num == '...' %}
+            <span class="px-2">…</span>
+        {% elif num == page_obj.number %}
+            <span class="px-3 py-1 rounded bg-[#04445F] text-white font-semibold">{{ num }}</span>
+        {% else %}
+            <a href="?page={{ num }}" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">&raquo;</a>
+        <a href="?page={{ paginator.num_pages }}" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">Last</a>
+    {% endif %}
+</div>
+{% endif %}
+
+
+<!-- Modal -->
+<div id="orderSlipModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-50">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+    <h3 class="text-xl font-semibold mb-4 text-[#04445F]">Select Order to Generate Slip</h3>
+    <form method="get" action="{% url 'order_slip' 0 %}" onsubmit="return goToOrderSlip(event)">
+      <label for="order_id" class="block text-sm font-medium text-gray-700 mb-1">Order</label>
+      <select id="order_id" name="order_id" required class="w-full mb-4 px-3 py-2 border border-gray-300 rounded">
+        {% for order in orders %}
+          <option value="{{ order.pk }}">Order #{{ order.pk }} - {{ order.order_date|date:"Y-m-d H:i" }}</option>
+        {% endfor %}
+      </select>
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="toggleModal()" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Cancel</button>
+        <button type="submit" class="bg-[#04445F] text-white px-4 py-1 rounded hover:bg-[#0369a1]">Generate</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleModal() {
+    const modal = document.getElementById('orderSlipModal');
+    modal.classList.toggle('hidden');
+    modal.classList.toggle('flex');
+  }
+
+  function goToOrderSlip(event) {
+    event.preventDefault();
+    const orderId = document.getElementById('order_id').value;
+    if (orderId) {
+      window.location.href = `/order-slip/${orderId}/`;
+    }
+  }
+</script>
+
+{% endblock %}

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'petclinic_app.apps.PetClinicAppConfig',
     'compressor',
     'widget_tweaks',
+    "whitenoise.runserver_nostatic", 
 ]
 
 MIDDLEWARE = [
@@ -51,7 +52,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware", 
 ]
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage" # new
 
 ROOT_URLCONF = 'inventoryclinic.urls'
 
@@ -81,9 +85,13 @@ WSGI_APPLICATION = 'inventoryclinic.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+'default': {
+    "ENGINE": "django.db.backends.postgresql",
+    "NAME": "postgres",
+    "USER": "postgres",
+    "PASSWORD": "postgres",
+    "HOST": "db", # set in docker-compose.yml
+    "PORT": 5432, # default postgres port
     }
 }
 

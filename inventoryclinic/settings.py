@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-w6y20y&eaf!839jq(j#+2_)6d)3am_gb2vr(q4%0pibpow#&)^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["vetpulse.herokuapp.com", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["vetpulse-9bad929d8f15.herokuapp.com", "localhost", "127.0.0.1"]
 
 
 # Application definition

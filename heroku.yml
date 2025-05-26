@@ -1,12 +1,15 @@
 setup:
   addons:
-  - plan: heroku-postgresql
+    - plan: heroku-postgresql:hobby-basic
+
 build:
   docker:
     web: Dockerfile
+
 release:
   image: web
   command:
-  - python manage.py collectstatic --noinput
+    - python manage.py collectstatic --noinput
+
 run:
-  web: gunicorn inventoryclinic.wsgi 
+  web: gunicorn inventoryclinic.wsgi

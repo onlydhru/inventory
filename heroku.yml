@@ -1,5 +1,6 @@
 setup:
   addons:
+    - plan: newrelic:wayne 
     - plan: heroku-postgresql:essential
 
 build:

@@ -16,7 +16,7 @@
             </div>
 
 
-            <form method="post" class="max-w-md md:ml-auto w-full" >
+           <form method="post" action="{% url 'login' %}" class="max-w-md md:ml-auto w-full">
                 {% csrf_token %}
               <h3 class="text-white text-3xl font-extrabold mb-8">
                 Sign in

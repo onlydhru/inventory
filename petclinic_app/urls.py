@@ -10,6 +10,7 @@ urlpatterns = [
      path('', views.IndexView.as_view(), name='login'),
      path('signup/', SignUpView.as_view(), name='signup'),
      path('login/', CustomLoginView.as_view(), name='login'),
+     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
      path('analytics/', views.AnalyticsView.as_view(), name='analytics'),
      path('adminbase/', views.AdminView.as_view(), name='adminbase'),
      path('dashboardpage/', views.DashboardView.as_view(), name='dashboardpage'),

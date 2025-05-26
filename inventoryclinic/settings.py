@@ -81,6 +81,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'inventoryclinic.wsgi.application'
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://vetpulse.herokuapp.com",
+    "https://*.herokuapp.com",  # Covers all dyno hostnames
+]
+
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 

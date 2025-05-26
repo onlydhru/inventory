@@ -1,7 +1,6 @@
 setup:
   addons:
-    - plan: newrelic:wayne 
-    - plan: heroku-postgresql:essential
+    - plan: heroku-postgresql:essential-0
 
 build:
   docker:
@@ -9,8 +8,7 @@ build:
 
 release:
   image: web
-  command:
-    - python manage.py collectstatic --noinput
+  command: python manage.py collectstatic --noinput
 
 run:
   web: gunicorn inventoryclinic.wsgi
